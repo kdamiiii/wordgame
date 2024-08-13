@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+        <script src="../js/common.js"></script>
+        <script src="../js/components.js"></script>
+        
+        <link rel="stylesheet" href="../css/global.css">
+        <script type="module">
+            import { initializeApp} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"
+            import { getDatabase, ref, onValue, set, update } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js"
+
+            const firebaseConfig = {
+                apiKey: "AIzaSyDKMHzLM_uhZyaNPm6k3TORTvQSm7zvvKs",
+                authDomain: "word-game-b887b.firebaseapp.com",
+                databaseURL: "https://word-game-b887b-default-rtdb.asia-southeast1.firebasedatabase.app",
+                projectId: "word-game-b887b",
+                storageBucket: "word-game-b887b.appspot.com",
+                messagingSenderId: "177684283581",
+                appId: "1:177684283581:web:ecb25c71aec84aad5fb7d4"
+            };
+
+            const app = initializeApp(firebaseConfig);
+            const db = getDatabase(app);
+
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+
+            const hash = urlParams.get('lobbyhash');
+            const playerName = urlParams.get('name');
+            let playerRole = null;
+
+            const playerRef = ref(db, 'lobbies/'+hash+'/players');
+            const gameStatusRef = ref(db, 'lobbies/'+hash+'/gameStatus');
+
+            onValue(gameStatusRef, ((gameSnapShot)=>{
+                const gameData = gameSnapShot.val();
+                onValue(playerRef, (playerSnapshot)=>{
+                    const playerData = playerSnapshot.val();
+                    const cardsContainer = document.getElementById('center');
+                    cardsContainer.innerHTML = '';
+                    cardsContainer.className = 'card-container'
+                    const words = gameData.words;
+                    const visible = playerData[playerName].includes('spymaster');
+                    playerRole = playerData[playerName];
+
+                    const turn = gameData.turn;
+                    document.getElementById('player-options').innerHTML = '';
+
+                    const logs = document.getElementById('logs');
+                    logs.innerHTML = '';
+
+                    console.log(gameData.logs);
+
+                    for(let xLog in gameData.logs){
+                        const newLog = document.createElement('div');
+                        
+                        if(gameData.logs[xLog].type == 'clue'){
+                            newLog.innerText = `${gameData.logs[xLog].player} gave a clue: ${gameData.logs[xLog].word}`;
+                        }
+                        else{
+                            newLog.innerText = `${gameData.logs[xLog].player} selected: ${gameData.logs[xLog].word}`;
+                        }
+                        
+                        if(gameData.logs[xLog].team == 'red'){
+                            newLog.style.color = '#a83232';
+                        }
+                        else{
+                            newLog.style.color = '#d9c1a5';
+                        }
+                        console.log(gameData.logs[xLog])
+
+                        logs.appendChild(newLog);
+                    }
+
+                    if(turn == 'blue'){
+                        document.body.style.backgroundColor = '#213268';
+                        if(gameData.clue){
+                            alert("HOORAY");
+                        }
+                        else{
+                            alert('HOOe')
+                        }
+                    }
+                    else{
+                        document.body.style.backgroundColor = '#662727';
+                        if(gameData.clue){
+                            //Red players turn
+                            if(playerRole == 'red'){
+                                for(let i in words){
+                                    const newDiv = createCard(words[i].name, words[i].color, visible, words[i].viewed);
+                                    const button = document.createElement('button');
+                                    button.className = 'btn btn-success';
+                                    button.onclick = function(){
+                                        alert(words[i].color);
+                                        if(words[i].color == 'red'){
+
+                                        }
+                                    }
+                                    button.innerText = "Select";
+                                    if(!words.viewed){
+                                        newDiv.appendChild(button);
+                                    }
+                                    cardsContainer.appendChild(newDiv);
+                                }
+                            }
+                        }
+                        else{
+                            //red spymaster turn
+                            if(playerRole == 'red-spymaster'){
+                                for(let i in words){
+                                    cardsContainer.appendChild(createCard(words[i].name, words[i].color, visible, words[i].viewed))
+                                }
+
+                                const container = document.createElement('div');
+                                container.className = 'input-container';
+                                // container.style.width = '40%';
+
+                                const input = document.createElement('input');
+                                input.type = 'text';
+                                input.className = 'form-control-lg';
+                                input.id = 'clue-input';
+                                input.maxLength = 20;
+
+                                const numberInput = document.createElement('input');
+                                numberInput.id = 'number-input-dog'
+                                numberInput.type = 'number';
+                                numberInput.className = 'form-control-lg number-input';
+                                numberInput.max=10;
+                                numberInput.min=1;
+
+                                // Append the outer div to the body (or another container element)
+                                const labelll = document.createElement('h4');
+                                labelll.innerText = 'CLUE:'
+                                labelll.style.color = 'white'
+                                container.appendChild(labelll);
+                                container.appendChild(input);
+
+                                const numberContainer = document.createElement('div');
+                                numberContainer.className = 'input-container';
+                                numberContainer.style.width = '10em !important';
+
+                                numberContainer.appendChild(numberInput);
+
+                                const button = document.createElement('button');
+                                button.type = 'button';
+                                button.className = 'btn btn-success';
+                                button.innerText = 'Confirm'
+                                button.style.height = '100%'
+
+                                button.onclick = function(){
+                                    const num = document.getElementById('number-input-dog').value;
+                                    const textinput = document.getElementById('clue-input').value;
+                                    if(num && textinput){
+                                        const action = {
+                                            type:'clue',
+                                            player:playerName,
+                                            word: textinput,
+                                            team: 'red'
+                                        }
+                                        const updates = {
+                                            [`lobbies/${hash}/gameStatus/clue`]:textinput,
+                                            [`lobbies/${hash}/gameStatus/clueCount`]: num,
+                                            [`lobbies/${hash}/gameStatus/logs`]: 
+                                            gameData.logs ? [...gameData.logs, action] : [action] 
+                                        }
+                                        update(ref(db), updates);
+                                    }
+                                    else{
+                                        alert('Missing inputs');
+                                    }
+                                }
+
+                                document.getElementById('player-options').appendChild(container);
+                                document.getElementById('player-options').appendChild(numberContainer);
+                                document.getElementById('player-options').appendChild(button);
+                            }
+                            else{
+                                
+                            }
+                        }
+                    }
+                    
+                })
+            }));
+        </script>
+    <body>
+        <div id="gamedisplay">
+            <div id="red" onclick="bark()">
+                <h1>Red Team</h1>
+                <ul id="red-list" class="list-group">
+                </ul>
+                
+                <div id="spymaster">
+                    <h4>Spymaster:</h4>
+                    <h2 id="redSpyMaster">None</h2>
+                </div>
+            </div>
+
+            <div id="center" class="center"></div>
+            <div id="blue-container-game">
+                <div id="blue" class="blue-game">
+                    <h1>Blue Team</h1>
+                    <ul id="blue-list" class="list-group">
+                    </ul>
+                    <div id="spymaster">
+                        <h4>Spymaster:</h4>
+                        <h2 id="blueSpyMaster">None</h2>
+                    </div>
+                </div>
+                <div id="logs">
+                </div>
+            </div>
+        </div>
+        <div class="center-container">
+            <div id="player-options"></div>
+        </div>
+    </body>
+</html>

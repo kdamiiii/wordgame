@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="./js/names.js"></script>
+        <script src="./js/common.js"></script>
+        <style>
+            .card {
+                height: 150px;
+                width: 19%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color:white;
+                font-size: x-large;
+            }
+
+            #card-container {
+                display: flex;
+                flex-direction: row;
+                gap: 1%;
+                row-gap: 10px;
+                width: 1000px;
+                flex-wrap: wrap;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div id="card-container"></div>
+
+        <script>
+            const container = document.getElementById('card-container');
+            let words = getUniqueRandomWords(names, 25);
+            for(let i in words){
+                container.appendChild(createCard(words[i].name, words[i].color, true, true));
+            }
+        </script>
+    </body>
+</html>
