@@ -60,9 +60,10 @@
 
 #button-container {
     width: 100%;
-    display: flex;
+    display: none;
     justify-content: center;
     margin-top: 2em;
+    gap: 2em;
 }
 
 .spymaster {
@@ -184,4 +185,34 @@
 
 #playerName {
     color: white;
+}
+
+.body-class {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(to right, #213268 50%, #662727 50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 2em;
+}
+
+.player-card{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    color: black !important;
+    width: 100%;
+    gap: 1em;
+}
+
+.player-records {
+    display: flex;
+    flex-direction: column;
+}
+
+#player{
+    color: black;
 }

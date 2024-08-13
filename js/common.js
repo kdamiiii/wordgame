@@ -175,3 +175,39 @@ function checkSpymasters(players) {
 
     return hasBlueSpymaster && hasRedSpymaster;
 }
+
+function assignRoles(players) {
+    // Convert the players object to an array of player names
+    let playerNames = Object.keys(players);
+
+    // Shuffle the player names
+    playerNames = playerNames.sort(() => Math.random() - 0.5);
+
+    const totalPlayers = playerNames.length;
+    const roles = [];
+    
+    // Determine the number of red and blue players
+    const half = Math.floor(totalPlayers / 2);
+    
+    // Add roles for the remaining players
+    for (let i = 0; i < half; i++) {
+        roles.push('red');
+        roles.push('blue');
+    }
+
+    // If there's an odd number of players, randomly assign the last one
+    if (totalPlayers % 2 !== 0) {
+        roles.push(Math.random() > 0.5 ? 'red' : 'blue');
+    }
+    
+    // Shuffle the roles to randomize their order
+    roles.sort(() => Math.random() - 0.5);
+    
+    // Assign the roles to the players
+    const assignedRoles = {};
+    playerNames.forEach((player, index) => {
+        assignedRoles[player] = roles[index];
+    });
+
+    return assignedRoles;
+}

@@ -6,10 +6,14 @@
         <script src="../js/common.js"></script>
         <script src="../js/components.js"></script>
         <link rel="stylesheet" href="../css/global.css">
-
+        <style>
+            #center{
+                background-color: white;
+            }
+        </style>
         <script type="module">
-            import { initializeApp} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"
-            import { getDatabase, ref, onValue, set, update } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js"
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"
+            import { getDatabase, ref, onValue, set, update, remove } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js"
 
             const firebaseConfig = {
                 apiKey: "AIzaSyDKMHzLM_uhZyaNPm6k3TORTvQSm7zvvKs",
@@ -27,8 +31,13 @@
             const queryString = window.location.search;
             const urlParams = new URLSearchParams(queryString);
 
-            const hash = urlParams.get('lobbyhash');
-            const playerName = urlParams.get('name');
+            const hash = localStorage.getItem('lobbyHash');
+            if(!hash){
+                const baseUrl = window.location.href.replace('game-lobby.html','lobbies.html');
+                const newUrl = `${baseUrl}`;
+                window.location.href = newUrl;
+            }
+            const playerName = localStorage.getItem('playerName');
 
             const redTeamList = document.getElementById('red-list');
             const blueTeamList = document.getElementById('blue-list');
@@ -36,8 +45,43 @@
 
             const playerRef = ref(db, 'lobbies/'+hash+'/players');
             const gameStartRef = ref(db, 'lobbies/'+hash+'/gameStatus/isGameActive');
+            const hostRef = ref(db, 'lobbies/'+hash+'/host');
+            const lobbyRef = ref(db, 'lobbies/'+hash);
 
             let playerData = null;
+
+            const redSpymasterName = document.getElementById('red-spymaster-name');
+            const blueSpymasterName = document.getElementById('blue-spymaster-name');
+
+            onValue(lobbyRef, (lobbySnapshot)=>{
+                if(!lobbySnapshot.val()){
+                    localStorage.removeItem("lobbyHash")
+                    alert('Host has deleted the lobby');
+                    const baseUrl = window.location.href.replace('game-lobby.html','lobbies.html');
+                    const newUrl = `${baseUrl}`;
+                    window.location.href = newUrl;
+                }
+            })
+
+            onValue(hostRef, (hostSnapshot)=>{
+                const host = hostSnapshot.val();
+                if(playerName == host.name){
+                    document.getElementById("button-container").style.display = 'flex';
+                    document.getElementById("shuffle-lobby").onclick = function(){
+                        const updates = {[`lobbies/${hash}/players`]:assignRoles(playerData)}
+                        update(ref(db), updates);
+                    }
+                    document.getElementById('delete-lobby').onclick = function(){
+                        remove(lobbyRef).then(()=>{
+                            localStorage.removeItem("lobbyHash")
+                            
+                            const baseUrl = window.location.href.replace('game-lobby.html','lobbies.html');
+                            const newUrl = `${baseUrl}`;
+                            window.location.href = newUrl;
+                        })
+                    }
+                }
+            })
 
             onValue(gameStartRef, (gameSnapshot) => {
                 const isGameActive = gameSnapshot.val();
@@ -55,17 +99,20 @@
                 blueTeamList.innerHTML = '';
                 noTeamList.innerHTML = '';
 
+                redSpymasterName.innerHTML = '';
+                blueSpymasterName.innerHTML ='';
+
                 for(let x in playerData){
                     const listItem = document.createElement('h4');
                     listItem.innerText = x;
 
                     if(playerData[x].includes("red")){
                         if(playerData[x].includes('spymaster')){
-                            const spymasterName = document.getElementById('red-spymaster-name');
-                            spymasterName.innerHTML = '';
+                            redSpymasterName.innerHTML = '';
+                            document.getElementById('join-red-spymaster').style.display = 'none';
                             const spymaster = document.createElement('h1');
                             spymaster.textContent = x;
-                            spymasterName.appendChild(spymaster);
+                            redSpymasterName.appendChild(spymaster);
                         }
                         else{
                             redTeamList.appendChild(listItem)
@@ -74,11 +121,11 @@
 
                     else if(playerData[x].includes("blue")){
                         if(playerData[x].includes('spymaster')){
-                            const spymasterName = document.getElementById('blue-spymaster-name');
-                            spymasterName.innerHTML = '';
+                            blueSpymasterName.innerHTML = '';
+                            document.getElementById('join-blue-spymaster').style.display = 'none';
                             const spymaster = document.createElement('h1');
                             spymaster.textContent = x;
-                            spymasterName.appendChild(spymaster);
+                            blueSpymasterName.appendChild(spymaster);
                         }
                         else{
                             blueTeamList.appendChild(listItem)
@@ -105,25 +152,31 @@
                 }
 
                 if(!containsStringInValues(playerData, 'blue-spymaster')){
+                    document.getElementById('join-blue-spymaster').style.display = 'block';
                     document.getElementById('join-blue-spymaster').onclick = function(){
                         update(ref(db), {[`lobbies/${hash}/players/${playerName}`]:'blue-spymaster'})
                     }
                 }
 
                 if(!containsStringInValues(playerData, 'red-spymaster')){
+                    document.getElementById('join-blue-spymaster').style.display = 'block';
                     document.getElementById('join-red-spymaster').onclick = function(){
                         update(ref(db), {[`lobbies/${hash}/players/${playerName}`]:'red-spymaster'})
                     }
                 }
 
                 document.getElementById('start-lobby').onclick = function(){
-                    console.log(checkSpymasters(playerData));
                     if(checkSpymasters(playerData)){
-                        const updates = {
-                            [`lobbies/${hash}/gameStatus/isGameActive`]:true,
-                            [`lobbies/${hash}/gameStatus/turn`]: getRandomColor(playerData),
+                        if(Object.keys(playerData).length >= 4){
+                            const updates = {
+                                [`lobbies/${hash}/gameStatus/isGameActive`]:true,
+                                [`lobbies/${hash}/gameStatus/turn`]: getRandomColor(playerData),
+                            }
+                            update(ref(db), updates)
                         }
-                        update(ref(db), updates)
+                        else{
+                            alert("Not enough players (minimum 4)");
+                        }
                     }
                     else{
                         alert('Spymasters have not been assigned');
@@ -133,7 +186,7 @@
         </script>
 
     </head>
-    <body>
+    <body class="body-class">
         <div id="gamedisplay">
             <div id="red">
                 <div class="team-header">
@@ -146,8 +199,8 @@
                 <div id="red-spymaster" class="spymaster">
                     <h4>Spymaster:</h4>
                     <div id="red-spymaster-name">
-                        <button id="join-red-spymaster" type="button"  class="btn btn-light">Join as Spymaster</button>
                     </div>
+                    <button id="join-red-spymaster" type="button"  class="btn btn-light">Join as Spymaster</button>
                 </div>
             </div>
 
@@ -168,13 +221,15 @@
                 <div id="blue-spymaster" class="spymaster">
                     <h4>Spymaster:</h4>
                     <div id="blue-spymaster-name">
-                        <button id="join-blue-spymaster" type="button"  class="btn btn-light">Join as Spymaster</button>
                     </div>
+                    <button id="join-blue-spymaster" type="button" class="btn btn-light">Join as Spymaster</button>
                 </div>
             </div>
         </div>
         <div id="button-container">
-            <button id="start-lobby" type="button" class="btn btn-primary">Start Game</button>
+            <button id="start-lobby" type="button" class="btn btn-success">Start Game</button>
+            <button id="shuffle-lobby" type="button" class="btn btn-warning">Shuffle Players</button>
+            <button id="delete-lobby" type="button" class="btn btn-danger">Delete Lobby</button>
         </div>
         <script>
             

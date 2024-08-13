@@ -1,39 +1,85 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="css/global.css">
         <script src="./js/names.js"></script>
         <script src="./js/common.js"></script>
+        <script  type="module">
+            import { initializeApp} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"
+            import { getDatabase, ref, onValue, set, update } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js"
+
+            const firebaseConfig = {
+                apiKey: "AIzaSyDKMHzLM_uhZyaNPm6k3TORTvQSm7zvvKs",
+                authDomain: "word-game-b887b.firebaseapp.com",
+                databaseURL: "https://word-game-b887b-default-rtdb.asia-southeast1.firebasedatabase.app",
+                projectId: "word-game-b887b",   
+                storageBucket: "word-game-b887b.appspot.com",
+                messagingSenderId: "177684283581",
+                appId: "1:177684283581:web:ecb25c71aec84aad5fb7d4"
+            };
+
+            const app = initializeApp(firebaseConfig);
+            const db = getDatabase(app);
+
+            let playerName = localStorage.getItem("playerName");
+            const accountRef = ref(db, 'accounts/'+playerName);
+
+            if(!playerName){
+                
+                    playerName = prompt('Enter your username (cannot be changed): ');
+                    localStorage.setItem('playerName', playerName);
+
+                    update(ref(db), {
+                        ['accounts/'+playerName]:{
+                            winsAsPlayer:0,
+                            winsAsSpy:0,
+                            losesAsPlayer:0,
+                            losesAsSpy:0
+                        }
+                    }).then(v=>{
+                        location.reload();
+                    });
+            }
+            onValue(accountRef, ((gameSnapShot)=>{
+            const accountVal = gameSnapShot.val();
+                document.getElementById('player').innerText = playerName;
+                document.getElementById('winsAsPlayer').innerText = accountVal.winsAsPlayer;
+                document.getElementById('winsAsSpy').innerText = accountVal.winsAsSpy;
+                document.getElementById('losesAsPlayer').innerText = accountVal.losesAsPlayer;
+                document.getElementById('losesAsSpy').innerText = accountVal.losesAsSpy;
+                document.getElementById('totalLoses').innerText = accountVal.losesAsPlayer + accountVal.losesAsSpy; 
+                document.getElementById('totalWins').innerText = accountVal.winsAsPlayer + accountVal.winsAsSpy; 
+            }))
+        </script>
         <style>
             .card {
-                height: 150px;
-                width: 19%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color:white;
-                font-size: x-large;
-            }
-
-            #card-container {
-                display: flex;
-                flex-direction: row;
-                gap: 1%;
-                row-gap: 10px;
-                width: 1000px;
-                flex-wrap: wrap;
+                height: 20vh;
+                width: 30vw;
             }
         </style>
     </head>
-    <body>
-
-        <div id="card-container"></div>
-
-        <script>
-            const container = document.getElementById('card-container');
-            let words = getUniqueRandomWords(names, 25);
-            for(let i in words){
-                container.appendChild(createCard(words[i].name, words[i].color, true, true));
-            }
-        </script>
+    <body class="body-class">
+        <div class="card">
+            <div class="card-header">
+                <h5 id="player" class="card-title"></h5>
+              </div>
+            <div class="card-body player-card">
+                <div class="player-records">
+                    <h6 class="card-text">Wins as Player: <span id="winsAsPlayer"></span></h6>
+                    <h6 class="card-text">Wins as Spymaster: <span id="winsAsSpy"></span></h6>
+                    <h6 class="card-text">Total: <span id="totalWins"></span></h6>
+                </div>
+                <div class="player-records">
+                    <h6 class="card-text">Loses as Player: <span id="losesAsPlayer"></span></h6>
+                    <h6 class="card-text">Loses as Spymaster: <span id="losesAsSpy"></span></h6>
+                    <h6 class="card-text">Total: <span id="totalLoses"></span></h6>
+                </div>
+            </div>
+        </div>
+        <a href="./pages/lobbies.html">
+            <button class="btn btn-success">Find Lobbies</button>
+        </a>
     </body>
 </html>

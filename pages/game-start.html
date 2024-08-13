@@ -27,8 +27,8 @@
             const queryString = window.location.search;
             const urlParams = new URLSearchParams(queryString);
 
-            const hash = urlParams.get('lobbyhash');
-            const playerName = urlParams.get('name');
+            const hash = localStorage.getItem('lobbyHash');
+            const playerName = localStorage.getItem('playerName');
             let playerRole = null;
 
             const playerRef = ref(db, 'lobbies/'+hash+'/players');
@@ -38,6 +38,11 @@
 
             onValue(gameStatusRef, ((gameSnapShot)=>{
                 const gameData = gameSnapShot.val();
+                if(!gameData.isGameActive){
+                    const baseUrl = window.location.href.replace('game-start.html','game-lobby.html');
+                    const newUrl = `${baseUrl}`;
+                    window.location.href = newUrl;
+                }
                 document.getElementById('redCards').innerHTML = gameData.redCards;
                 document.getElementById('blueCards').innerHTML = gameData.blueCards;
                 announcement.innerHTML = '';
