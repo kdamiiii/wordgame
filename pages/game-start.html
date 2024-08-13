@@ -15,7 +15,7 @@
                 apiKey: "AIzaSyDKMHzLM_uhZyaNPm6k3TORTvQSm7zvvKs",
                 authDomain: "word-game-b887b.firebaseapp.com",
                 databaseURL: "https://word-game-b887b-default-rtdb.asia-southeast1.firebasedatabase.app",
-                projectId: "word-game-b887b",
+                projectId: "word-game-b887b",   
                 storageBucket: "word-game-b887b.appspot.com",
                 messagingSenderId: "177684283581",
                 appId: "1:177684283581:web:ecb25c71aec84aad5fb7d4"
@@ -384,6 +384,13 @@
                                 announcement.innerHTML = 'BLUE SPYMASTER is giving a clue'
                                 for(let i in words){
                                     const newDiv = createCard(words[i].name, words[i].color, visible, words[i].viewed);
+                                    const viewerContainer = document.createElement('div');
+                                    for(let viewer in words[i].viewers){
+                                        const viewer = document.createElement('span');
+                                        viewer.className = 'badge badge-danger';
+                                        viewer.innerHTML = words[i].viewers[i];
+                                        viewerContainer.appendChild(viewer);
+                                    }
                                     cardsContainer.appendChild(newDiv);
                                 }
                             }
@@ -637,6 +644,13 @@
                                 announcement.innerHTML = 'RED SPYMASTER is giving a clue'
                                 for(let i in words){
                                     const newDiv = createCard(words[i].name, words[i].color, visible, words[i].viewed);
+                                    const viewerContainer = document.createElement('div');
+                                    for(let viewer in words[i].viewers){
+                                        const viewer = document.createElement('span');
+                                        viewer.className = 'badge badge-danger';
+                                        viewer.innerHTML = words[i].viewers[i];
+                                        viewerContainer.appendChild(viewer);
+                                    }
                                     cardsContainer.appendChild(newDiv);
                                 }
                             }
