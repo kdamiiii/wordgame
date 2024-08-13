@@ -2,7 +2,7 @@
     display: flex;
     width: 100%;
     justify-content: space-between;
-    margin-top: 4em;
+    margin-top: 2em;
     gap:2em;
     color: white;
     padding-left: 2em;
@@ -29,7 +29,7 @@
 
     width: 20%;
     height: 35vh;
-    background-color: #3e64de;
+    background-color: #173bb1;
     border-radius: 3%;
     /* color: #662727; */
 }
@@ -135,4 +135,53 @@
     display: flex;
     flex-direction: column;
     gap: .5em;
+}
+
+.badge-class {
+    font-size: 0.5em !important;
+}
+
+.badge-container {
+    width: 100%;
+    display: flex;
+    justify-content: start;
+    gap: 0.2em;
+    margin-top: 0.3em;
+    margin-bottom: 0.3em;
+    padding-left: 0.2em;
+}
+
+.red-ingame {
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+.blue-ingame {
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+#announcement {
+    font-size: 2em;
+    color: white;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    align-items: center;
+}
+
+#redPlayers {
+    display: flex;
+    gap: 0.4em;
+    margin-bottom : 2em;
+}
+
+#bluePlayers {
+    display: flex;
+    gap: 0.4em;
+    margin-bottom : 2em;
+}
+
+#playerName {
+    color: white;
 }

@@ -33,11 +33,44 @@
 
             const playerRef = ref(db, 'lobbies/'+hash+'/players');
             const gameStatusRef = ref(db, 'lobbies/'+hash+'/gameStatus');
+            
+            const announcement = document.getElementById('announcement');
 
             onValue(gameStatusRef, ((gameSnapShot)=>{
                 const gameData = gameSnapShot.val();
+                document.getElementById('redCards').innerHTML = gameData.redCards;
+                document.getElementById('blueCards').innerHTML = gameData.blueCards;
+                announcement.innerHTML = '';
                 onValue(playerRef, (playerSnapshot)=>{
                     const playerData = playerSnapshot.val();
+                    document.getElementById('bluePlayers').innerHTML = '';
+                    document.getElementById('redPlayers').innerHTML = '';
+
+                    for(let i in playerData){
+                        const playerBadge = document.createElement('span');
+                        playerBadge.innerText = i
+                        if(playerData[i] == 'blue'){
+                            playerBadge.className = 'badge bg-primary';
+                            document.getElementById('bluePlayers').appendChild(playerBadge);
+                        }
+                        else if (playerData[i] == 'red'){
+                            playerBadge.className = 'badge bg-danger';
+                            document.getElementById('redPlayers').appendChild(playerBadge);
+                        }
+                        else if (playerData[i] == 'blue-spymaster'){
+                            document.getElementById('bluespymaster').innerText = i;
+                        }
+                        else if (playerData[i] == 'red-spymaster'){
+                            document.getElementById('redspymaster').innerText = i;
+                        }
+                    }
+                    const playerInfo = document.getElementById('playerName');
+                    playerInfo.innerHTML = 'You are: ';
+                    const playerInfoBadge = document.createElement('span');
+                    playerInfoBadge.className = `badge bg-${playerData[playerName].includes('blue') ? 'primary' : 'danger'}`
+                    playerInfoBadge.innerText = playerName;
+                    playerInfo.appendChild(playerInfoBadge);
+
                     const cardsContainer = document.getElementById('center');
                     cardsContainer.innerHTML = '';
                     cardsContainer.className = 'card-container'
@@ -51,56 +84,479 @@
                     const logs = document.getElementById('logs');
                     logs.innerHTML = '';
 
-                    console.log(gameData.logs);
-
                     for(let xLog in gameData.logs){
                         const newLog = document.createElement('div');
-                        
+                        const nameSpan = document.createElement('b');
+                        nameSpan.style.fontWeight = 'strong';
+                        nameSpan.innerText = gameData.logs[xLog].player;
+
+                        newLog.appendChild(nameSpan);
                         if(gameData.logs[xLog].type == 'clue'){
-                            newLog.innerText = `${gameData.logs[xLog].player} gave a clue: ${gameData.logs[xLog].word}`;
+                            const wordSpan = document.createElement('b');
+                            wordSpan.style.fontWeight = 'strong';
+                            wordSpan.style.color = colorCheck(gameData.logs[xLog].team).bgColor; 
+                            wordSpan.innerText = `${gameData.logs[xLog].word}(${gameData.logs[xLog].wordCount})`;
+                            const spanElement = document.createElement('span');
+                            spanElement.textContent = ' gave a clue: ';
+                            newLog.appendChild(spanElement);
+                            newLog.appendChild(wordSpan);
                         }
                         else{
-                            newLog.innerText = `${gameData.logs[xLog].player} selected: ${gameData.logs[xLog].word}`;
+                            const wordSpan = document.createElement('b');
+                            wordSpan.style.fontWeight = 'strong';
+                            wordSpan.style.color = colorCheck(gameData.logs[xLog].wordColor).bgColor; 
+                            wordSpan.innerText = gameData.logs[xLog].word;
+                            const spanElement = document.createElement('span');
+                            spanElement.textContent = ' selected: ';
+                            newLog.appendChild(spanElement);
+                            newLog.appendChild(wordSpan);
                         }
                         
-                        if(gameData.logs[xLog].team == 'red'){
-                            newLog.style.color = '#a83232';
-                        }
-                        else{
-                            newLog.style.color = '#d9c1a5';
-                        }
-                        console.log(gameData.logs[xLog])
+                            newLog.style.color = colorCheck(gameData.logs[xLog].team).bgColor;
 
                         logs.appendChild(newLog);
                     }
 
-                    if(turn == 'blue'){
+                    if(gameData.blueCards < 1){
                         document.body.style.backgroundColor = '#213268';
-                        if(gameData.clue){
-                            alert("HOORAY");
-                        }
-                        else{
-                            alert('HOOe')
+                        const winner = document.createElement('div');
+                        winner.className = 'winner';
+                        winner.innerText = 'BLUE TEAM WINS!'
+                        announcement.appendChild(winner);
+                        for(let i in words){
+                            const newDiv = createCard(words[i].name, words[i].color, true, words[i].viewed);
+                            cardsContainer.appendChild(newDiv);
                         }
                     }
+                    else if(gameData.redCards < 1){
+                        document.body.style.backgroundColor = '#662727';
+                        const winner = document.createElement('div');
+                        winner.className = 'winner';
+                        winner.innerText = 'BLUE TEAM WINS!'
+                        announcement.appendChild(winner)
+                        for(let i in words){
+                            const newDiv = createCard(words[i].name, words[i].color, true, words[i].viewed);
+                            cardsContainer.appendChild(newDiv);
+                        }
+                    }
+
+                    /*
+                    
+                    
+                    
+                    BLUE TURN BLUE TURN BLUE TURN
+                    
+                    
+                    
+                    */
+
+                    else if(turn == 'blue'){
+                        document.body.style.backgroundColor = '#213268';
+                        if(gameData.clue){
+                            announcement.innerHTML = `BLUE TEAM is Guessing! CLUE: ${gameData.clue} [${gameData.clueCount}]`;
+                            if(playerRole == 'blue'){
+                                for(let i in words){
+                                    const newDiv = createCard(words[i].name, words[i].color, visible, words[i].viewed);
+                                    
+                                    if(!words[i].viewed){
+                                        const button = document.createElement('button');
+                                        button.className = 'btn btn-success';
+                                        button.innerText = "Select";
+                                        
+                                        button.onclick = function(){
+                                            if(words[i].color == 'blue'){
+                                                let clueCount = gameData.clueCount - 1;
+                                                const turn = clueCount < 1 ? 'red' : 'blue';
+                                                const blueScore = gameData.blueCards - 1;
+
+                                                let clue = clueCount < 1? null : gameData.clue;
+
+                                                const action = {
+                                                    type:'select',
+                                                    player:playerName,
+                                                    word: words[i].name,
+                                                    wordColor: words[i].color,
+                                                    team: 'blue'
+                                                }
+
+                                                const updates = {
+                                                    [`lobbies/${hash}/gameStatus/clue/`]:clue,
+                                                    [`lobbies/${hash}/gameStatus/clueCount/`]:clueCount,
+                                                    [`lobbies/${hash}/gameStatus/turn/`]:turn,
+                                                    [`lobbies/${hash}/gameStatus/blueCards/`]:blueScore,
+                                                    [`lobbies/${hash}/gameStatus/words/${i}/viewed`]: true,
+                                                    [`lobbies/${hash}/gameStatus/words/${i}/viewers`]: null,
+                                                    [`lobbies/${hash}/gameStatus/logs`]: [...gameData.logs, action] 
+                                                }
+
+                                                update(ref(db), updates);
+                                            }
+                                            else if(words[i].color == 'red'){
+                                                const action = {
+                                                    type:'select',
+                                                    player:playerName,
+                                                    word: words[i].name,
+                                                    wordColor: words[i].color,
+                                                    team: 'blue'
+                                                }
+
+                                                const updates = {
+                                                    [`lobbies/${hash}/gameStatus/clue/`]:null,
+                                                    [`lobbies/${hash}/gameStatus/clueCount/`]:null,
+                                                    [`lobbies/${hash}/gameStatus/turn/`]:'red',
+                                                    [`lobbies/${hash}/gameStatus/redCards/`]:gameData.redCards - 1,
+                                                    [`lobbies/${hash}/gameStatus/words/${i}/viewed`]: true,
+                                                    [`lobbies/${hash}/gameStatus/words/${i}/viewers`]: null,
+                                                    [`lobbies/${hash}/gameStatus/logs`]: [...gameData.logs, action] 
+                                                }
+
+                                                update(ref(db), updates);
+                                            }
+                                            else if(words[i].color == 'neutral'){
+                                                const action = {
+                                                    type:'select',
+                                                    player:playerName,
+                                                    word: words[i].name,
+                                                    wordColor: words[i].color,
+                                                    team: 'blue'
+                                                }
+
+                                                const updates = {
+                                                    [`lobbies/${hash}/gameStatus/clue/`]:null,
+                                                    [`lobbies/${hash}/gameStatus/clueCount/`]:null,
+                                                    [`lobbies/${hash}/gameStatus/turn/`]:'red',
+                                                    [`lobbies/${hash}/gameStatus/words/${i}/viewed`]: true,
+                                                    [`lobbies/${hash}/gameStatus/words/${i}/viewers`]: null,
+                                                    [`lobbies/${hash}/gameStatus/logs`]: [...gameData.logs, action] 
+                                                }
+
+                                                update(ref(db), updates);
+                                            }
+                                            else if(words[i].color == 'black'){
+                                                const action = {
+                                                    type:'select',
+                                                    player:playerName,
+                                                    word: words[i].name,
+                                                    wordColor: words[i].color,
+                                                    team: 'blue'
+                                                }
+
+                                                const updates = {
+                                                    [`lobbies/${hash}/gameStatus/clue/`]:null,
+                                                    [`lobbies/${hash}/gameStatus/clueCount/`]:null,
+                                                    [`lobbies/${hash}/gameStatus/turn/`]:'red',
+                                                    [`lobbies/${hash}/gameStatus/blueCards/`]:0,
+                                                    [`lobbies/${hash}/gameStatus/words/${i}/viewed`]: true,
+                                                    [`lobbies/${hash}/gameStatus/words/${i}/viewers`]: null,
+                                                    [`lobbies/${hash}/gameStatus/logs`]: [...gameData.logs, action] 
+                                                }
+
+                                                update(ref(db), updates);
+                                            }
+                                        }
+                                        newDiv.appendChild(button);
+                                    }
+
+                                    newDiv.onclick = function(){
+                                        if(words[i].viewers && words[i]?.viewers.includes(playerName)){
+                                            let updatedViewers = words[i].viewers.filter(item => item !== playerName);
+                                            const updates = {
+                                                [`lobbies/${hash}/gameStatus/words/${i}/viewers`] : updatedViewers
+                                            }
+                                            update(ref(db), updates);
+                                        }
+                                        else if(words[i].viewers == null){
+
+                                            const updates = {
+                                                [`lobbies/${hash}/gameStatus/words/${i}/viewers`] : [playerName]
+                                            }
+                                            update(ref(db), updates);
+                                        }
+                                        else{
+                                            const updates = {
+                                                [`lobbies/${hash}/gameStatus/words/${i}/viewers`] : [...words[i].viewers, playerName]
+                                            }
+                                            update(ref(db), updates);
+                                        }
+                                        
+                                    }
+
+                                    if(!words[i].viewed){
+                                        const viewerContainer = document.createElement('div');
+                                        viewerContainer.className = 'badge-container'
+                                        for(let v in words[i].viewers){
+                                            const viewer = document.createElement('span');
+                                            viewer.className = 'badge bg-primary badge-class';
+                                            viewer.innerText = words[i].viewers[v];
+                                            viewerContainer.appendChild(viewer);
+                                        }
+                                        newDiv.appendChild(viewerContainer);
+                                    }
+
+                                    cardsContainer.appendChild(newDiv);
+                                }
+                            }
+                            else{
+                                for(let i in words){
+                                    const newDiv = createCard(words[i].name, words[i].color, visible, words[i].viewed);
+                                    const viewerContainer = document.createElement('div');
+                                    for(let viewer in words[i].viewers){
+                                        const viewer = document.createElement('span');
+                                        viewer.className = 'badge badge-primary';
+                                        viewer.innerHTML = words[i].viewers[i];
+                                        viewerContainer.appendChild(viewer);
+                                    }
+                                    cardsContainer.appendChild(newDiv);
+                                }
+                            }
+                        }
+                        else{
+                            if(playerRole == 'blue-spymaster'){
+                                for(let i in words){
+                                    cardsContainer.appendChild(createCard(words[i].name, words[i].color, visible, words[i].viewed))
+                                }
+
+                                const container = document.createElement('div');
+                                container.className = 'input-container';
+                                // container.style.width = '40%';
+
+                                const input = document.createElement('input');
+                                input.type = 'text';
+                                input.className = 'form-control-lg';
+                                input.id = 'clue-input';
+                                input.maxLength = 20;
+
+                                const numberInput = document.createElement('input');
+                                numberInput.id = 'number-input-dog'
+                                numberInput.type = 'number';
+                                numberInput.className = 'form-control-lg number-input';
+                                numberInput.max=10;
+                                numberInput.min=1;
+
+                                // Append the outer div to the body (or another container element)
+                                const labelll = document.createElement('h4');
+                                labelll.innerText = 'CLUE:'
+                                labelll.style.color = 'white'
+                                container.appendChild(labelll);
+                                container.appendChild(input);
+
+                                const numberContainer = document.createElement('div');
+                                numberContainer.className = 'input-container';
+                                numberContainer.style.width = '10em !important';
+
+                                numberContainer.appendChild(numberInput);
+
+                                const button = document.createElement('button');
+                                button.type = 'button';
+                                button.className = 'btn btn-success';
+                                button.innerText = 'Confirm'
+                                button.style.height = '100%'
+
+                                button.onclick = function(){
+                                    const num = document.getElementById('number-input-dog').value;
+                                    const textinput = document.getElementById('clue-input').value;
+                                    if(num && textinput){
+                                        const action = {
+                                            type:'clue',
+                                            player:playerName,
+                                            word: textinput,
+                                            team: 'blue',
+                                            wordCount: num
+                                        }
+                                        const updates = {
+                                            [`lobbies/${hash}/gameStatus/clue`]:textinput,
+                                            [`lobbies/${hash}/gameStatus/clueCount`]: num,
+                                            [`lobbies/${hash}/gameStatus/logs`]: 
+                                            gameData.logs ? [...gameData.logs, action] : [action] 
+                                        }
+                                        update(ref(db), updates);
+                                    }
+                                    else{
+                                        alert('Missing inputs');
+                                    }
+                                }
+
+                                document.getElementById('player-options').appendChild(container);
+                                document.getElementById('player-options').appendChild(numberContainer);
+                                document.getElementById('player-options').appendChild(button);
+                            }
+                            else{
+                                announcement.innerHTML = 'BLUE SPYMASTER is giving a clue'
+                                for(let i in words){
+                                    const newDiv = createCard(words[i].name, words[i].color, visible, words[i].viewed);
+                                    cardsContainer.appendChild(newDiv);
+                                }
+                            }
+                        }
+                    }
+
+                    /*
+                    
+                    
+                    
+                    RED TURN RED TURN RED TURN
+                    
+                    
+                    
+                    */
+
                     else{
                         document.body.style.backgroundColor = '#662727';
                         if(gameData.clue){
                             //Red players turn
+                            announcement.innerHTML = `RED TEAM is Guessing! CLUE: ${gameData.clue} [${gameData.clueCount}]`;
                             if(playerRole == 'red'){
+                                
                                 for(let i in words){
                                     const newDiv = createCard(words[i].name, words[i].color, visible, words[i].viewed);
-                                    const button = document.createElement('button');
-                                    button.className = 'btn btn-success';
-                                    button.onclick = function(){
-                                        alert(words[i].color);
-                                        if(words[i].color == 'red'){
+                                    
+                                    if(!words[i].viewed){
+                                        const button = document.createElement('button');
+                                        button.className = 'btn btn-success';
+                                        button.innerText = "Select";
+                                        
+                                        button.onclick = function(){
+                                            if(words[i].color == 'red'){
+                                                let clueCount = gameData.clueCount - 1;
+                                                const turn = clueCount < 1 ? 'blue' : 'red';
+                                                const redScore = gameData.redCards - 1;
 
+                                                let clue = clueCount < 1? null : gameData.clue;
+
+                                                const action = {
+                                                    type:'select',
+                                                    player:playerName,
+                                                    word: words[i].name,
+                                                    wordColor: words[i].color,
+                                                    team: 'red'
+                                                }
+
+                                                const updates = {
+                                                    [`lobbies/${hash}/gameStatus/clue/`]:clue,
+                                                    [`lobbies/${hash}/gameStatus/clueCount/`]:clueCount,
+                                                    [`lobbies/${hash}/gameStatus/turn/`]:turn,
+                                                    [`lobbies/${hash}/gameStatus/redCards/`]:redScore,
+                                                    [`lobbies/${hash}/gameStatus/words/${i}/viewed`]: true,
+                                                    [`lobbies/${hash}/gameStatus/words/${i}/viewers`]: null,
+                                                    [`lobbies/${hash}/gameStatus/logs`]: [...gameData.logs, action] 
+                                                }
+
+                                                update(ref(db), updates);
+                                            }
+                                            else if(words[i].color == 'blue'){
+                                                const action = {
+                                                    type:'select',
+                                                    player:playerName,
+                                                    word: words[i].name,
+                                                    wordColor: words[i].color,
+                                                    team: 'red'
+                                                }
+
+                                                const updates = {
+                                                    [`lobbies/${hash}/gameStatus/clue/`]:null,
+                                                    [`lobbies/${hash}/gameStatus/clueCount/`]:null,
+                                                    [`lobbies/${hash}/gameStatus/turn/`]:'blue',
+                                                    [`lobbies/${hash}/gameStatus/blueCards/`]:gameData.blueCards - 1,
+                                                    [`lobbies/${hash}/gameStatus/words/${i}/viewed`]: true,
+                                                    [`lobbies/${hash}/gameStatus/words/${i}/viewers`]: null,
+                                                    [`lobbies/${hash}/gameStatus/logs`]: [...gameData.logs, action] 
+                                                }
+
+                                                update(ref(db), updates);
+                                            }
+                                            else if(words[i].color == 'neutral'){
+                                                const action = {
+                                                    type:'select',
+                                                    player:playerName,
+                                                    word: words[i].name,
+                                                    wordColor: words[i].color,
+                                                    team: 'red'
+                                                }
+
+                                                const updates = {
+                                                    [`lobbies/${hash}/gameStatus/clue/`]:null,
+                                                    [`lobbies/${hash}/gameStatus/clueCount/`]:null,
+                                                    [`lobbies/${hash}/gameStatus/turn/`]:'blue',
+                                                    [`lobbies/${hash}/gameStatus/words/${i}/viewed`]: true,
+                                                    [`lobbies/${hash}/gameStatus/words/${i}/viewers`]: null,
+                                                    [`lobbies/${hash}/gameStatus/logs`]: [...gameData.logs, action] 
+                                                }
+
+                                                update(ref(db), updates);
+                                            }
+                                            else if(words[i].color == 'black'){
+                                                const action = {
+                                                    type:'select',
+                                                    player:playerName,
+                                                    word: words[i].name,
+                                                    wordColor: words[i].color,
+                                                    team: 'red'
+                                                }
+
+                                                const updates = {
+                                                    [`lobbies/${hash}/gameStatus/clue/`]:null,
+                                                    [`lobbies/${hash}/gameStatus/clueCount/`]:null,
+                                                    [`lobbies/${hash}/gameStatus/turn/`]:'blue',
+                                                    [`lobbies/${hash}/gameStatus/blueCards/`]:0,
+                                                    [`lobbies/${hash}/gameStatus/words/${i}/viewed`]: true,
+                                                    [`lobbies/${hash}/gameStatus/words/${i}/viewers`]: null,
+                                                    [`lobbies/${hash}/gameStatus/logs`]: [...gameData.logs, action] 
+                                                }
+
+                                                update(ref(db), updates);
+                                            }
                                         }
-                                    }
-                                    button.innerText = "Select";
-                                    if(!words.viewed){
                                         newDiv.appendChild(button);
+                                    }
+
+                                    newDiv.onclick = function(){
+                                        if(words[i].viewers && words[i]?.viewers.includes(playerName)){
+                                            let updatedViewers = words[i].viewers.filter(item => item !== playerName);
+                                            const updates = {
+                                                [`lobbies/${hash}/gameStatus/words/${i}/viewers`] : updatedViewers
+                                            }
+                                            update(ref(db), updates);
+                                        }
+                                        else if(words[i].viewers == null){
+
+                                            const updates = {
+                                                [`lobbies/${hash}/gameStatus/words/${i}/viewers`] : [playerName]
+                                            }
+                                            update(ref(db), updates);
+                                        }
+                                        else{
+                                            const updates = {
+                                                [`lobbies/${hash}/gameStatus/words/${i}/viewers`] : [...words[i].viewers, playerName]
+                                            }
+                                            update(ref(db), updates);
+                                        }
+                                        
+                                    }
+
+                                    if(!words[i].viewed){
+                                        const viewerContainer = document.createElement('div');
+                                        viewerContainer.className = 'badge-container'
+                                        for(let v in words[i].viewers){
+                                            const viewer = document.createElement('span');
+                                            viewer.className = 'badge bg-danger badge-class';
+                                            viewer.innerText = words[i].viewers[v];
+                                            viewerContainer.appendChild(viewer);
+                                        }
+                                        newDiv.appendChild(viewerContainer);
+                                    }
+
+                                    cardsContainer.appendChild(newDiv);
+                                }
+                            }
+                            else{
+                                for(let i in words){
+                                    const newDiv = createCard(words[i].name, words[i].color, visible, words[i].viewed);
+                                    const viewerContainer = document.createElement('div');
+                                    for(let viewer in words[i].viewers){
+                                        const viewer = document.createElement('span');
+                                        viewer.className = 'badge badge-danger';
+                                        viewer.innerHTML = words[i].viewers[i];
+                                        viewerContainer.appendChild(viewer);
                                     }
                                     cardsContainer.appendChild(newDiv);
                                 }
@@ -157,7 +613,8 @@
                                             type:'clue',
                                             player:playerName,
                                             word: textinput,
-                                            team: 'red'
+                                            team: 'red',
+                                            wordCount: num
                                         }
                                         const updates = {
                                             [`lobbies/${hash}/gameStatus/clue`]:textinput,
@@ -177,7 +634,11 @@
                                 document.getElementById('player-options').appendChild(button);
                             }
                             else{
-                                
+                                announcement.innerHTML = 'RED SPYMASTER is giving a clue'
+                                for(let i in words){
+                                    const newDiv = createCard(words[i].name, words[i].color, visible, words[i].viewed);
+                                    cardsContainer.appendChild(newDiv);
+                                }
                             }
                         }
                     }
@@ -186,28 +647,29 @@
             }));
         </script>
     <body>
+        <div id="announcement"></div>
         <div id="gamedisplay">
-            <div id="red" onclick="bark()">
+            <div id="red" class="red-ingame">
                 <h1>Red Team</h1>
-                <ul id="red-list" class="list-group">
-                </ul>
-                
-                <div id="spymaster">
-                    <h4>Spymaster:</h4>
-                    <h2 id="redSpyMaster">None</h2>
-                </div>
+                <ul id="red-list" class="list-group"></ul>
+                <h1 id="redCards"></h1>
+                <h4>Players:</h4>
+                <div id="redPlayers"></div>
+                <h4>Spymaster:</h4>
+                <span id="redspymaster" class="badge bg-danger"></span>
             </div>
 
             <div id="center" class="center"></div>
             <div id="blue-container-game">
-                <div id="blue" class="blue-game">
+                <div id="blue" class="blue-game blue-ingame">
                     <h1>Blue Team</h1>
                     <ul id="blue-list" class="list-group">
                     </ul>
-                    <div id="spymaster">
-                        <h4>Spymaster:</h4>
-                        <h2 id="blueSpyMaster">None</h2>
-                    </div>
+                    <h1 id="blueCards"></h1>
+                    <h4>Players:</h4>
+                    <div id="bluePlayers"></div>
+                    <h4>Spymaster:</h4>
+                    <span id="bluespymaster" class="badge bg-primary"></span>
                 </div>
                 <div id="logs">
                 </div>
@@ -215,6 +677,10 @@
         </div>
         <div class="center-container">
             <div id="player-options"></div>
+            
+        </div>
+        <div class="center-container">
+            <div id="playerName"></div>
         </div>
     </body>
 </html>
