@@ -213,7 +213,6 @@ function assignRoles(players) {
 }
 
 function createUserHints(viewers, players){
-    console.log(players)
     const viewerContainer = document.createElement('div');
     viewerContainer.className = 'badge-container'
     for(let v in viewers){
@@ -224,4 +223,14 @@ function createUserHints(viewers, players){
         viewerContainer.appendChild(viewer);
     }
     return viewerContainer
+}
+
+function setWordViewersToNull(words, name){
+    return words.map((wordie)=>{
+        wordie.viewers = null;
+        if(wordie.name == name){
+            wordie.viewed = true;
+        }
+        return wordie
+    })
 }
