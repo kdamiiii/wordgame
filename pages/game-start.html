@@ -375,7 +375,7 @@
                                 announcement.innerHTML = 'BLUE SPYMASTER is giving a clue'
                                 for(let i in words){
                                     const newDiv = createCard(words[i].name, words[i].color, visible, words[i].viewed);
-                                    newDiv.appendChild(createUserHints(words[i].viewers), playerData);
+                                    // newDiv.appendChild(createUserHints(words[i].viewers), playerData);
                                     cardsContainer.appendChild(newDiv);
                                 }
                             }
@@ -614,7 +614,7 @@
                                 announcement.innerHTML = 'RED SPYMASTER is giving a clue'
                                 for(let i in words){
                                     const newDiv = createCard(words[i].name, words[i].color, visible, words[i].viewed);
-                                    newDiv.appendChild(createUserHints(words[i].viewers, playerData));
+                                    // newDiv.appendChild(createUserHints(words[i].viewers, playerData));
                                     cardsContainer.appendChild(newDiv);
                                 }
                             }
