@@ -89,6 +89,10 @@
                     const logs = document.getElementById('logs');
                     logs.innerHTML = '';
 
+                    function scrollToBottom() {
+                        logs.scrollTop = logs.scrollHeight;
+                    }
+
                     for(let xLog in gameData.logs){
                         const newLog = document.createElement('div');
                         const nameSpan = document.createElement('b');
@@ -118,7 +122,8 @@
                         }
                         
                             newLog.style.color = colorCheck(gameData.logs[xLog].team).bgColor;
-
+                        
+                        scrollToBottom();
                         logs.appendChild(newLog);
                     }
 
@@ -132,16 +137,39 @@
                             const newDiv = createCard(words[i].name, words[i].color, true, words[i].viewed);
                             cardsContainer.appendChild(newDiv);
                         }
+                        const endButton = document.getElementById('leaveMatch');
+                        endButton.style.display = 'flex';
+
+                        endButton.onclick = function(){
+                            localStorage.removeItem('lobbyHash');
+                            update(ref(db), {
+                                ['lobbies/'+hash+'/players']: playerData.filter((player)=>player!==playerName)
+                            })
+                            const baseUrl = window.location.href.replace('game-start.html','lobbies.html');
+                            const newUrl = `${baseUrl}`;
+                            window.location.href = newUrl;
+                        }
                     }
                     else if(gameData.redCards < 1){
                         document.body.style.backgroundColor = '#662727';
                         const winner = document.createElement('div');
                         winner.className = 'winner';
-                        winner.innerText = 'BLUE TEAM WINS!'
+                        winner.innerText = 'RED TEAM WINS!'
                         announcement.appendChild(winner)
                         for(let i in words){
                             const newDiv = createCard(words[i].name, words[i].color, true, words[i].viewed);
                             cardsContainer.appendChild(newDiv);
+                        }
+                        const endButton = document.getElementById('leaveMatch');
+                        endbutton.style.display = 'flex';
+                        endButton.onclick = function(){
+                            localStorage.removeItem('lobbyHash');
+                            update(ref(db), {
+                                ['lobbies/'+hash+'/players']: playerData.filter((player)=>player!==playerName)
+                            })
+                            const baseUrl = window.location.href.replace('game-start.html','lobbies.html');
+                            const newUrl = `${baseUrl}`;
+                            window.location.href = newUrl;
                         }
                     }
 
@@ -247,7 +275,7 @@
                                                     [`lobbies/${hash}/gameStatus/clue/`]:null,
                                                     [`lobbies/${hash}/gameStatus/clueCount/`]:null,
                                                     [`lobbies/${hash}/gameStatus/turn/`]:'red',
-                                                    [`lobbies/${hash}/gameStatus/blueCards/`]:0,
+                                                    [`lobbies/${hash}/gameStatus/redCards/`]:0,
                                                     [`lobbies/${hash}/gameStatus/words`]: setWordViewersToNull(words, words[i].name),
                                                     [`lobbies/${hash}/gameStatus/logs`]: [...gameData.logs, action] 
                                                 }
@@ -651,8 +679,9 @@
             <div id="player-options"></div>
             
         </div>
-        <div class="center-container">
+        <div class="center-container" style="flex-direction: column; align-items: center; gap: 2em;">
             <div id="playerName"></div>
+            <button id="leaveMatch" type="button" style="display: none;" class="btn btn-danger">Leave Match</button>
         </div>
     </body>
 </html>
