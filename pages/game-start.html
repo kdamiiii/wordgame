@@ -259,27 +259,28 @@
                                     }
 
                                     newDiv.onclick = function(){
-                                        if(words[i].viewers && words[i]?.viewers.includes(playerName)){
-                                            let updatedViewers = words[i].viewers.filter(item => item !== playerName);
-                                            const updates = {
-                                                [`lobbies/${hash}/gameStatus/words/${i}/viewers`] : updatedViewers
+                                        if(!words[i].viewed){
+                                            if(words[i].viewers && words[i]?.viewers.includes(playerName)){
+                                                let updatedViewers = words[i].viewers.filter(item => item !== playerName);
+                                                const updates = {
+                                                    [`lobbies/${hash}/gameStatus/words/${i}/viewers`] : updatedViewers
+                                                }
+                                                update(ref(db), updates);
                                             }
-                                            update(ref(db), updates);
-                                        }
-                                        else if(words[i].viewers == null){
+                                            else if(words[i].viewers == null){
 
-                                            const updates = {
-                                                [`lobbies/${hash}/gameStatus/words/${i}/viewers`] : [playerName]
+                                                const updates = {
+                                                    [`lobbies/${hash}/gameStatus/words/${i}/viewers`] : [playerName]
+                                                }
+                                                update(ref(db), updates);
                                             }
-                                            update(ref(db), updates);
-                                        }
-                                        else{
-                                            const updates = {
-                                                [`lobbies/${hash}/gameStatus/words/${i}/viewers`] : [...words[i].viewers, playerName]
+                                            else{
+                                                const updates = {
+                                                    [`lobbies/${hash}/gameStatus/words/${i}/viewers`] : [...words[i].viewers, playerName]
+                                                }
+                                                update(ref(db), updates);
                                             }
-                                            update(ref(db), updates);
                                         }
-                                        
                                     }
 
                                     if(!words[i].viewed){
@@ -494,27 +495,28 @@
                                     }
 
                                     newDiv.onclick = function(){
-                                        if(words[i].viewers && words[i]?.viewers.includes(playerName)){
-                                            let updatedViewers = words[i].viewers.filter(item => item !== playerName);
-                                            const updates = {
-                                                [`lobbies/${hash}/gameStatus/words/${i}/viewers`] : updatedViewers
+                                        if(!words[i].viewed){
+                                            if(words[i].viewers && words[i]?.viewers.includes(playerName)){
+                                                let updatedViewers = words[i].viewers.filter(item => item !== playerName);
+                                                const updates = {
+                                                    [`lobbies/${hash}/gameStatus/words/${i}/viewers`] : updatedViewers
+                                                }
+                                                update(ref(db), updates);
                                             }
-                                            update(ref(db), updates);
-                                        }
-                                        else if(words[i].viewers == null){
+                                            else if(words[i].viewers == null){
 
-                                            const updates = {
-                                                [`lobbies/${hash}/gameStatus/words/${i}/viewers`] : [playerName]
+                                                const updates = {
+                                                    [`lobbies/${hash}/gameStatus/words/${i}/viewers`] : [playerName]
+                                                }
+                                                update(ref(db), updates);
                                             }
-                                            update(ref(db), updates);
-                                        }
-                                        else{
-                                            const updates = {
-                                                [`lobbies/${hash}/gameStatus/words/${i}/viewers`] : [...words[i].viewers, playerName]
+                                            else{
+                                                const updates = {
+                                                    [`lobbies/${hash}/gameStatus/words/${i}/viewers`] : [...words[i].viewers, playerName]
+                                                }
+                                                update(ref(db), updates);
                                             }
-                                            update(ref(db), updates);
                                         }
-                                        
                                     }
 
                                     if(!words[i].viewed){
