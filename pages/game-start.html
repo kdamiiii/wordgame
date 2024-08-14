@@ -259,7 +259,16 @@
                                                 update(ref(db), updates);
                                             }
                                         }
+                                        const viewerContainer = document.createElement('div');
+                                        viewerContainer.className = 'badge-container'
+                                        for(let v in words[i].viewers){
+                                            const viewer = document.createElement('span');
+                                            viewer.className = 'badge bg-primary badge-class';
+                                            viewer.innerText = words[i].viewers[v];
+                                            viewerContainer.appendChild(viewer);
+                                        }
                                         newDiv.appendChild(button);
+                                        newDiv.appendChild(viewerContainer);
                                     }
 
                                     newDiv.onclick = function(){
@@ -519,6 +528,15 @@
                                             }
                                         }
                                         newDiv.appendChild(button);
+                                        const viewerContainer = document.createElement('div');
+                                        viewerContainer.className = 'badge-container'
+                                        for(let v in words[i].viewers){
+                                            const viewer = document.createElement('span');
+                                            viewer.className = 'badge bg-primary badge-class';
+                                            viewer.innerText = words[i].viewers[v];
+                                            viewerContainer.appendChild(viewer);
+                                        }
+                                        newDiv.appendChild(viewerContainer);
                                     }
 
                                     newDiv.onclick = function(){
