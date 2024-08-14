@@ -287,15 +287,7 @@
                                     }
 
                                     if(!words[i].viewed){
-                                        const viewerContainer = document.createElement('div');
-                                        viewerContainer.className = 'badge-container'
-                                        for(let v in words[i].viewers){
-                                            const viewer = document.createElement('span');
-                                            viewer.className = 'badge bg-primary badge-class';
-                                            viewer.innerText = words[i].viewers[v];
-                                            viewerContainer.appendChild(viewer);
-                                        }
-                                        newDiv.appendChild(viewerContainer);
+                                        newDiv.appendChild(createUserHints(words[i].viewers, playerData));
                                     }
 
                                     cardsContainer.appendChild(newDiv);
@@ -304,13 +296,7 @@
                             else{
                                 for(let i in words){
                                     const newDiv = createCard(words[i].name, words[i].color, visible, words[i].viewed);
-                                    const viewerContainer = document.createElement('div');
-                                    for(let viewer in words[i].viewers){
-                                        const viewer = document.createElement('span');
-                                        viewer.className = 'badge badge-primary';
-                                        viewer.innerHTML = words[i].viewers[i];
-                                        viewerContainer.appendChild(viewer);
-                                    }
+                                    newDiv.appendChild(createUserHints(words[i].viewers, playerData));
                                     cardsContainer.appendChild(newDiv);
                                 }
                             }
@@ -389,14 +375,7 @@
                                 announcement.innerHTML = 'BLUE SPYMASTER is giving a clue'
                                 for(let i in words){
                                     const newDiv = createCard(words[i].name, words[i].color, visible, words[i].viewed);
-                                    const viewerContainer = document.createElement('div');
-                                    for(let viewer in words[i].viewers){
-                                        const viewer = document.createElement('span');
-                                        viewer.className = 'badge badge-primary';
-                                        viewer.innerHTML = words[i].viewers[i];
-                                        viewerContainer.appendChild(viewer);
-                                    }
-                                    newDiv.appendChild(viewerContainer);
+                                    newDiv.appendChild(createUserHints(words[i].viewers), playerData);
                                     cardsContainer.appendChild(newDiv);
                                 }
                             }
@@ -547,31 +526,15 @@
                                     }
 
                                     if(!words[i].viewed){
-                                        const viewerContainer = document.createElement('div');
-                                        viewerContainer.className = 'badge-container'
-                                        for(let v in words[i].viewers){
-                                            const viewer = document.createElement('span');
-                                            viewer.className = 'badge bg-danger badge-class';
-                                            viewer.innerText = words[i].viewers[v];
-                                            viewerContainer.appendChild(viewer);
-                                        }
-                                        newDiv.appendChild(viewerContainer);
+                                        newDiv.appendChild(createUserHints(words[i].viewers, playerData));
                                     }
-
                                     cardsContainer.appendChild(newDiv);
                                 }
                             }
                             else{
                                 for(let i in words){
                                     const newDiv = createCard(words[i].name, words[i].color, visible, words[i].viewed);
-                                    const viewerContainer = document.createElement('div');
-                                    for(let viewer in words[i].viewers){
-                                        const viewer = document.createElement('span');
-                                        viewer.className = 'badge badge-danger';
-                                        viewer.innerHTML = words[i].viewers[i];
-                                        viewerContainer.appendChild(viewer);
-                                    }
-                                    newDiv.appendChild(viewerContainer);
+                                    newDiv.appendChild(createUserHints(words[i].viewers, playerData));
                                     cardsContainer.appendChild(newDiv);
                                 }
                             }
@@ -651,13 +614,7 @@
                                 announcement.innerHTML = 'RED SPYMASTER is giving a clue'
                                 for(let i in words){
                                     const newDiv = createCard(words[i].name, words[i].color, visible, words[i].viewed);
-                                    const viewerContainer = document.createElement('div');
-                                    for(let viewer in words[i].viewers){
-                                        const viewer = document.createElement('span');
-                                        viewer.className = 'badge badge-danger';
-                                        viewer.innerHTML = words[i].viewers[i];
-                                        viewerContainer.appendChild(viewer);
-                                    }
+                                    newDiv.appendChild(createUserHints(words[i].viewers, playerData));
                                     cardsContainer.appendChild(newDiv);
                                 }
                             }

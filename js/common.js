@@ -211,3 +211,17 @@ function assignRoles(players) {
 
     return assignedRoles;
 }
+
+function createUserHints(viewers, players){
+    console.log(players)
+    const viewerContainer = document.createElement('div');
+    viewerContainer.className = 'badge-container'
+    for(let v in viewers){
+        const color = players[viewers[v]].includes('red') ? 'bg-danger' : 'bg-primary';
+        const viewer = document.createElement('span');
+        viewer.className = `badge ${color} badge-class`;
+        viewer.innerText = viewers[v];
+        viewerContainer.appendChild(viewer);
+    }
+    return viewerContainer
+}
