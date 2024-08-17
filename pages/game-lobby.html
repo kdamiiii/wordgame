@@ -74,7 +74,6 @@
                     document.getElementById('delete-lobby').onclick = function(){
                         remove(lobbyRef).then(()=>{
                             localStorage.removeItem("lobbyHash")
-                            
                             const baseUrl = window.location.href.replace('game-lobby.html','lobbies.html');
                             const newUrl = `${baseUrl}`;
                             window.location.href = newUrl;
@@ -159,7 +158,7 @@
                 }
 
                 if(!containsStringInValues(playerData, 'red-spymaster')){
-                    document.getElementById('join-blue-spymaster').style.display = 'block';
+                    document.getElementById('join-red-spymaster').style.display = 'block';
                     document.getElementById('join-red-spymaster').onclick = function(){
                         update(ref(db), {[`lobbies/${hash}/players/${playerName}`]:'red-spymaster'})
                     }
@@ -170,7 +169,7 @@
                         if(Object.keys(playerData).length >= 4){
                             const updates = {
                                 [`lobbies/${hash}/gameStatus/isGameActive`]:true,
-                                [`lobbies/${hash}/gameStatus/turn`]: getRandomColor(playerData),
+                                [`lobbies/${hash}/gameStatus/turn`]: 'blue',
                             }
                             update(ref(db), updates)
                         }

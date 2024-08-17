@@ -216,3 +216,8 @@
 #player{
     color: black;
 }
+
+.horizontal {
+    display: flex;
+    gap: 2em;
+}
