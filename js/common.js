@@ -432,7 +432,7 @@ function drawCards(playerData, turn, gameData, playerRole, words, visible, annou
             document.getElementById('player-options').appendChild(button);
         }
         else{
-            announcement.innerHTML = `${turn.toString() .toUpperCase()} SPYMASTER is giving a clue`
+            announcement.innerHTML = `${turn.toUpperCase()} SPYMASTER is giving a clue`
             for(let i in words){
                 const newDiv = createCard(words[i].name, words[i].color, visible, words[i].viewed);
                 // newDiv.appendChild(createUserHints(words[i].viewers), playerData);

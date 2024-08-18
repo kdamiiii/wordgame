@@ -52,7 +52,7 @@ const names = [
     "Hermit Crab", "Giant Panda", "Hamster", "Cobra", "Hammerhead shark", "Camel", "Hawk", "Deer", "Chameleon", "Hippopotamus", "Jaguar", 
     "Chihuahua", "King Cobra", "Ibex", "Lizard", "Koala", "Kangaroo", "Iguana", "Llama", "Chinchillas", "Dodo", "Jellyfish", "Rhinoceros", 
     "Hedgehog", "Zebra", "Possum", "Wombat", "Bison", "Bull", "Buffalo", "Sheep", "Meerkat", "Mouse", "Otter", "Sloth", "Owl", "Vulture", 
-    "Flamingo", "Racoon", "Mole", "Duck", "Swan", "Lynx", "Monitor lizard", "Elk", "Boar", "Lemur", "Mule", "Baboon", "Mammoth", "Blue whale", 
+    "Flamingo", "Racoon", "Mole", "Duck", "Swan", "Lynx", "Monitor lizard", "Elk", "Boar", "Mule", "Baboon", "Mammoth", "Blue whale", 
     "Rat", "Snake", "Peacock" ,"Aardvark", "African Elephant", "African Tree Pangolin", "Albatross", "Alligator", "Alpaca", "Anaconda", 
     "Angel Fish", "Ant", "Anteater", "Antelope", "Archer Fish", "Armadillo", "Asian Elephant", "Atlantic Puffin", "Aye-Aye", "Arab horse", 
     "Baboon", "Badger", "Bald Eagle", "Bandicoot", "Bangle Tiger", "Barnacle", "Barracuda", "Basilisk", "Bass", "Basset Hound", "Bat", 

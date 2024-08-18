@@ -53,6 +53,8 @@
             }
             restartLobby.style.display = 'none';
 
+            
+
             onValue(gameStatusRef, ((gameSnapShot)=>{
                 const gameData = gameSnapShot.val();
                 if(!gameData.isGameActive){
@@ -67,7 +69,7 @@
                     const playerData = playerSnapshot.val();
                     document.getElementById('bluePlayers').innerHTML = '';
                     document.getElementById('redPlayers').innerHTML = '';
-
+                    
                     for(let i in playerData){
                         const playerBadge = document.createElement('span');
                         playerBadge.innerText = i
@@ -111,7 +113,6 @@
                     }
 
                     for(let xLog in gameData.logs){
-                        console.log(gameData.logs[xLog])
                         const newLog = document.createElement('div');
                         const nameSpan = document.createElement('b');
                         nameSpan.style.fontWeight = 'strong';
